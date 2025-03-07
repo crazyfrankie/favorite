@@ -2,9 +2,6 @@ package dao
 
 import "gorm.io/gorm"
 
-type Favorite struct {
-}
-
 type FavoriteDao struct {
 	db *gorm.DB
 }

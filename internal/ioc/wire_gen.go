@@ -8,12 +8,12 @@ package ioc
 
 import (
 	"fmt"
-	"github.com/crazyfrankie/favorite/biz/repository"
-	"github.com/crazyfrankie/favorite/biz/repository/cache"
-	"github.com/crazyfrankie/favorite/biz/repository/dao"
-	"github.com/crazyfrankie/favorite/biz/service"
-	"github.com/crazyfrankie/favorite/config"
-	"github.com/crazyfrankie/favorite/rpc"
+	"github.com/crazyfrankie/favorite/internal/biz/repository"
+	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
+	"github.com/crazyfrankie/favorite/internal/biz/repository/dao"
+	"github.com/crazyfrankie/favorite/internal/biz/service"
+	"github.com/crazyfrankie/favorite/internal/config"
+	"github.com/crazyfrankie/favorite/internal/rpc"
 	"github.com/redis/go-redis/v9"
 	"go.etcd.io/etcd/client/v3"
 	"gorm.io/driver/mysql"

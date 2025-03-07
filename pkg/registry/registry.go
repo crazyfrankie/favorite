@@ -9,7 +9,7 @@ import (
 	"go.etcd.io/etcd/client/v3/naming/endpoints"
 	"go.uber.org/zap"
 
-	"github.com/crazyfrankie/favorite/config"
+	"github.com/crazyfrankie/favorite/internal/config"
 )
 
 type ServiceRegistry struct {

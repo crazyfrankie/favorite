@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.3
 // 	protoc        v5.29.3
-// source: idl/favorite.proto
+// source: api/favorite.proto
 
 package favorite
 
@@ -23,15 +23,16 @@ const (
 type FavoriteActionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Biz           string                 `protobuf:"bytes,1,opt,name=biz,proto3" json:"biz,omitempty"`
-	BizId         int32                  `protobuf:"varint,2,opt,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
+	BizId         int64                  `protobuf:"varint,2,opt,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
 	ActionType    int32                  `protobuf:"varint,3,opt,name=action_type,json=actionType,proto3" json:"action_type,omitempty"`
+	UserId        int64                  `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FavoriteActionRequest) Reset() {
 	*x = FavoriteActionRequest{}
-	mi := &file_idl_favorite_proto_msgTypes[0]
+	mi := &file_api_favorite_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +44,7 @@ func (x *FavoriteActionRequest) String() string {
 func (*FavoriteActionRequest) ProtoMessage() {}
 
 func (x *FavoriteActionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_idl_favorite_proto_msgTypes[0]
+	mi := &file_api_favorite_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +57,7 @@ func (x *FavoriteActionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FavoriteActionRequest.ProtoReflect.Descriptor instead.
 func (*FavoriteActionRequest) Descriptor() ([]byte, []int) {
-	return file_idl_favorite_proto_rawDescGZIP(), []int{0}
+	return file_api_favorite_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *FavoriteActionRequest) GetBiz() string {
@@ -66,7 +67,7 @@ func (x *FavoriteActionRequest) GetBiz() string {
 	return ""
 }
 
-func (x *FavoriteActionRequest) GetBizId() int32 {
+func (x *FavoriteActionRequest) GetBizId() int64 {
 	if x != nil {
 		return x.BizId
 	}
@@ -80,6 +81,13 @@ func (x *FavoriteActionRequest) GetActionType() int32 {
 	return 0
 }
 
+func (x *FavoriteActionRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
 type FavoriteActionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -88,7 +96,7 @@ type FavoriteActionResponse struct {
 
 func (x *FavoriteActionResponse) Reset() {
 	*x = FavoriteActionResponse{}
-	mi := &file_idl_favorite_proto_msgTypes[1]
+	mi := &file_api_favorite_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -100,7 +108,7 @@ func (x *FavoriteActionResponse) String() string {
 func (*FavoriteActionResponse) ProtoMessage() {}
 
 func (x *FavoriteActionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_idl_favorite_proto_msgTypes[1]
+	mi := &file_api_favorite_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -113,80 +121,631 @@ func (x *FavoriteActionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FavoriteActionResponse.ProtoReflect.Descriptor instead.
 func (*FavoriteActionResponse) Descriptor() ([]byte, []int) {
-	return file_idl_favorite_proto_rawDescGZIP(), []int{1}
+	return file_api_favorite_proto_rawDescGZIP(), []int{1}
 }
 
-var File_idl_favorite_proto protoreflect.FileDescriptor
+type FavoriteListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-var file_idl_favorite_proto_rawDesc = []byte{
-	0x0a, 0x12, 0x69, 0x64, 0x6c, 0x2f, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x22, 0x61,
+func (x *FavoriteListRequest) Reset() {
+	*x = FavoriteListRequest{}
+	mi := &file_api_favorite_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteListRequest) ProtoMessage() {}
+
+func (x *FavoriteListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteListRequest.ProtoReflect.Descriptor instead.
+func (*FavoriteListRequest) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FavoriteListRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type FavoriteListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BizId         []int64                `protobuf:"varint,1,rep,packed,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FavoriteListResponse) Reset() {
+	*x = FavoriteListResponse{}
+	mi := &file_api_favorite_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteListResponse) ProtoMessage() {}
+
+func (x *FavoriteListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteListResponse.ProtoReflect.Descriptor instead.
+func (*FavoriteListResponse) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *FavoriteListResponse) GetBizId() []int64 {
+	if x != nil {
+		return x.BizId
+	}
+	return nil
+}
+
+// 用户是否点赞
+type IsFavoriteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	BizId         int64                  `protobuf:"varint,2,opt,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsFavoriteRequest) Reset() {
+	*x = IsFavoriteRequest{}
+	mi := &file_api_favorite_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsFavoriteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsFavoriteRequest) ProtoMessage() {}
+
+func (x *IsFavoriteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsFavoriteRequest.ProtoReflect.Descriptor instead.
+func (*IsFavoriteRequest) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *IsFavoriteRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *IsFavoriteRequest) GetBizId() int64 {
+	if x != nil {
+		return x.BizId
+	}
+	return 0
+}
+
+type IsFavoriteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Favorite      bool                   `protobuf:"varint,1,opt,name=favorite,proto3" json:"favorite,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsFavoriteResponse) Reset() {
+	*x = IsFavoriteResponse{}
+	mi := &file_api_favorite_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsFavoriteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsFavoriteResponse) ProtoMessage() {}
+
+func (x *IsFavoriteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsFavoriteResponse.ProtoReflect.Descriptor instead.
+func (*IsFavoriteResponse) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *IsFavoriteResponse) GetFavorite() bool {
+	if x != nil {
+		return x.Favorite
+	}
+	return false
+}
+
+// 用户点赞总数
+type UserFavoriteCountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserFavoriteCountRequest) Reset() {
+	*x = UserFavoriteCountRequest{}
+	mi := &file_api_favorite_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserFavoriteCountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserFavoriteCountRequest) ProtoMessage() {}
+
+func (x *UserFavoriteCountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserFavoriteCountRequest.ProtoReflect.Descriptor instead.
+func (*UserFavoriteCountRequest) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UserFavoriteCountRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type UserFavoriteCountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int64                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserFavoriteCountResponse) Reset() {
+	*x = UserFavoriteCountResponse{}
+	mi := &file_api_favorite_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserFavoriteCountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserFavoriteCountResponse) ProtoMessage() {}
+
+func (x *UserFavoriteCountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserFavoriteCountResponse.ProtoReflect.Descriptor instead.
+func (*UserFavoriteCountResponse) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UserFavoriteCountResponse) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+// 用户被点赞总数
+type UserFavoritedCountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Biz           string                 `protobuf:"bytes,1,opt,name=biz,proto3" json:"biz,omitempty"`
+	BizId         []int64                `protobuf:"varint,2,rep,packed,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserFavoritedCountRequest) Reset() {
+	*x = UserFavoritedCountRequest{}
+	mi := &file_api_favorite_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserFavoritedCountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserFavoritedCountRequest) ProtoMessage() {}
+
+func (x *UserFavoritedCountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserFavoritedCountRequest.ProtoReflect.Descriptor instead.
+func (*UserFavoritedCountRequest) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UserFavoritedCountRequest) GetBiz() string {
+	if x != nil {
+		return x.Biz
+	}
+	return ""
+}
+
+func (x *UserFavoritedCountRequest) GetBizId() []int64 {
+	if x != nil {
+		return x.BizId
+	}
+	return nil
+}
+
+type UserFavoritedCountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int64                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserFavoritedCountResponse) Reset() {
+	*x = UserFavoritedCountResponse{}
+	mi := &file_api_favorite_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserFavoritedCountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserFavoritedCountResponse) ProtoMessage() {}
+
+func (x *UserFavoritedCountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserFavoritedCountResponse.ProtoReflect.Descriptor instead.
+func (*UserFavoritedCountResponse) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UserFavoritedCountResponse) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+// 获取单个内容的点赞数
+type FavoriteCountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Biz           string                 `protobuf:"bytes,1,opt,name=biz,proto3" json:"biz,omitempty"`
+	BizId         int64                  `protobuf:"varint,2,opt,name=biz_id,json=bizId,proto3" json:"biz_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FavoriteCountRequest) Reset() {
+	*x = FavoriteCountRequest{}
+	mi := &file_api_favorite_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteCountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteCountRequest) ProtoMessage() {}
+
+func (x *FavoriteCountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteCountRequest.ProtoReflect.Descriptor instead.
+func (*FavoriteCountRequest) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *FavoriteCountRequest) GetBiz() string {
+	if x != nil {
+		return x.Biz
+	}
+	return ""
+}
+
+func (x *FavoriteCountRequest) GetBizId() int64 {
+	if x != nil {
+		return x.BizId
+	}
+	return 0
+}
+
+type FavoriteCountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int64                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FavoriteCountResponse) Reset() {
+	*x = FavoriteCountResponse{}
+	mi := &file_api_favorite_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteCountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteCountResponse) ProtoMessage() {}
+
+func (x *FavoriteCountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_favorite_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteCountResponse.ProtoReflect.Descriptor instead.
+func (*FavoriteCountResponse) Descriptor() ([]byte, []int) {
+	return file_api_favorite_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *FavoriteCountResponse) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+var File_api_favorite_proto protoreflect.FileDescriptor
+
+var file_api_favorite_proto_rawDesc = []byte{
+	0x0a, 0x12, 0x61, 0x70, 0x69, 0x2f, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x22, 0x7a,
 	0x0a, 0x15, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x62, 0x69, 0x7a, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x62, 0x69, 0x7a, 0x12, 0x15, 0x0a, 0x06, 0x62, 0x69, 0x7a,
-	0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x62, 0x69, 0x7a, 0x49, 0x64,
+	0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x62, 0x69, 0x7a, 0x49, 0x64,
 	0x12, 0x1f, 0x0a, 0x0b, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18,
 	0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x79, 0x70,
-	0x65, 0x22, 0x18, 0x0a, 0x16, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x66, 0x0a, 0x0f, 0x46,
-	0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x53,
-	0x0a, 0x0e, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e,
-	0x12, 0x1f, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46, 0x61, 0x76, 0x6f,
-	0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x20, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46, 0x61, 0x76,
-	0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x42, 0x0b, 0x5a, 0x09, 0x2f, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22, 0x18, 0x0a, 0x16, 0x46, 0x61,
+	0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2e, 0x0a, 0x13, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65,
+	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x75,
+	0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73,
+	0x65, 0x72, 0x49, 0x64, 0x22, 0x2d, 0x0a, 0x14, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65,
+	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x15, 0x0a, 0x06,
+	0x62, 0x69, 0x7a, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x03, 0x28, 0x03, 0x52, 0x05, 0x62, 0x69,
+	0x7a, 0x49, 0x64, 0x22, 0x43, 0x0a, 0x11, 0x49, 0x73, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72,
+	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49,
+	0x64, 0x12, 0x15, 0x0a, 0x06, 0x62, 0x69, 0x7a, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x05, 0x62, 0x69, 0x7a, 0x49, 0x64, 0x22, 0x30, 0x0a, 0x12, 0x49, 0x73, 0x46, 0x61,
+	0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1a,
+	0x0a, 0x08, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08,
+	0x52, 0x08, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x22, 0x33, 0x0a, 0x18, 0x55, 0x73,
+	0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22,
+	0x31, 0x0a, 0x19, 0x55, 0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43,
+	0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05,
+	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x63, 0x6f, 0x75,
+	0x6e, 0x74, 0x22, 0x44, 0x0a, 0x19, 0x55, 0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69,
+	0x74, 0x65, 0x64, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x10, 0x0a, 0x03, 0x62, 0x69, 0x7a, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x62, 0x69,
+	0x7a, 0x12, 0x15, 0x0a, 0x06, 0x62, 0x69, 0x7a, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x03, 0x28,
+	0x03, 0x52, 0x05, 0x62, 0x69, 0x7a, 0x49, 0x64, 0x22, 0x32, 0x0a, 0x1a, 0x55, 0x73, 0x65, 0x72,
+	0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x64, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x3f, 0x0a, 0x14,
+	0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x62, 0x69, 0x7a, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x03, 0x62, 0x69, 0x7a, 0x12, 0x15, 0x0a, 0x06, 0x62, 0x69, 0x7a, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x62, 0x69, 0x7a, 0x49, 0x64, 0x22, 0x2d, 0x0a,
+	0x15, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x32, 0x8f, 0x04, 0x0a,
+	0x0f, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x12, 0x53, 0x0a, 0x0e, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x1f, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46, 0x61,
+	0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46,
+	0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4d, 0x0a, 0x0c, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x1d, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65,
+	0x2e, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e,
+	0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x47, 0x0a, 0x0a, 0x49, 0x73, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69,
+	0x74, 0x65, 0x12, 0x1b, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x49, 0x73,
+	0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x1c, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x49, 0x73, 0x46, 0x61, 0x76,
+	0x6f, 0x72, 0x69, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5c, 0x0a,
+	0x11, 0x55, 0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75,
+	0x6e, 0x74, 0x12, 0x22, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x55, 0x73,
+	0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f,
+	0x75, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5f, 0x0a, 0x12, 0x55,
+	0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x64, 0x43, 0x6f, 0x75, 0x6e,
+	0x74, 0x12, 0x23, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x55, 0x73, 0x65,
+	0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x64, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x64, 0x43,
+	0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x50, 0x0a, 0x0d,
+	0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x1e, 0x2e,
+	0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1f, 0x2e,
+	0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x2e, 0x46, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74,
+	0x65, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0b,
+	0x5a, 0x09, 0x2f, 0x66, 0x61, 0x76, 0x6f, 0x72, 0x69, 0x74, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
-	file_idl_favorite_proto_rawDescOnce sync.Once
-	file_idl_favorite_proto_rawDescData = file_idl_favorite_proto_rawDesc
+	file_api_favorite_proto_rawDescOnce sync.Once
+	file_api_favorite_proto_rawDescData = file_api_favorite_proto_rawDesc
 )
 
-func file_idl_favorite_proto_rawDescGZIP() []byte {
-	file_idl_favorite_proto_rawDescOnce.Do(func() {
-		file_idl_favorite_proto_rawDescData = protoimpl.X.CompressGZIP(file_idl_favorite_proto_rawDescData)
+func file_api_favorite_proto_rawDescGZIP() []byte {
+	file_api_favorite_proto_rawDescOnce.Do(func() {
+		file_api_favorite_proto_rawDescData = protoimpl.X.CompressGZIP(file_api_favorite_proto_rawDescData)
 	})
-	return file_idl_favorite_proto_rawDescData
+	return file_api_favorite_proto_rawDescData
 }
 
-var file_idl_favorite_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_idl_favorite_proto_goTypes = []any{
-	(*FavoriteActionRequest)(nil),  // 0: favorite.FavoriteActionRequest
-	(*FavoriteActionResponse)(nil), // 1: favorite.FavoriteActionResponse
+var file_api_favorite_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_api_favorite_proto_goTypes = []any{
+	(*FavoriteActionRequest)(nil),      // 0: favorite.FavoriteActionRequest
+	(*FavoriteActionResponse)(nil),     // 1: favorite.FavoriteActionResponse
+	(*FavoriteListRequest)(nil),        // 2: favorite.FavoriteListRequest
+	(*FavoriteListResponse)(nil),       // 3: favorite.FavoriteListResponse
+	(*IsFavoriteRequest)(nil),          // 4: favorite.IsFavoriteRequest
+	(*IsFavoriteResponse)(nil),         // 5: favorite.IsFavoriteResponse
+	(*UserFavoriteCountRequest)(nil),   // 6: favorite.UserFavoriteCountRequest
+	(*UserFavoriteCountResponse)(nil),  // 7: favorite.UserFavoriteCountResponse
+	(*UserFavoritedCountRequest)(nil),  // 8: favorite.UserFavoritedCountRequest
+	(*UserFavoritedCountResponse)(nil), // 9: favorite.UserFavoritedCountResponse
+	(*FavoriteCountRequest)(nil),       // 10: favorite.FavoriteCountRequest
+	(*FavoriteCountResponse)(nil),      // 11: favorite.FavoriteCountResponse
 }
-var file_idl_favorite_proto_depIdxs = []int32{
-	0, // 0: favorite.FavoriteService.FavoriteAction:input_type -> favorite.FavoriteActionRequest
-	1, // 1: favorite.FavoriteService.FavoriteAction:output_type -> favorite.FavoriteActionResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+var file_api_favorite_proto_depIdxs = []int32{
+	0,  // 0: favorite.FavoriteService.FavoriteAction:input_type -> favorite.FavoriteActionRequest
+	2,  // 1: favorite.FavoriteService.FavoriteList:input_type -> favorite.FavoriteListRequest
+	4,  // 2: favorite.FavoriteService.IsFavorite:input_type -> favorite.IsFavoriteRequest
+	6,  // 3: favorite.FavoriteService.UserFavoriteCount:input_type -> favorite.UserFavoriteCountRequest
+	8,  // 4: favorite.FavoriteService.UserFavoritedCount:input_type -> favorite.UserFavoritedCountRequest
+	10, // 5: favorite.FavoriteService.FavoriteCount:input_type -> favorite.FavoriteCountRequest
+	1,  // 6: favorite.FavoriteService.FavoriteAction:output_type -> favorite.FavoriteActionResponse
+	3,  // 7: favorite.FavoriteService.FavoriteList:output_type -> favorite.FavoriteListResponse
+	5,  // 8: favorite.FavoriteService.IsFavorite:output_type -> favorite.IsFavoriteResponse
+	7,  // 9: favorite.FavoriteService.UserFavoriteCount:output_type -> favorite.UserFavoriteCountResponse
+	9,  // 10: favorite.FavoriteService.UserFavoritedCount:output_type -> favorite.UserFavoritedCountResponse
+	11, // 11: favorite.FavoriteService.FavoriteCount:output_type -> favorite.FavoriteCountResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_idl_favorite_proto_init() }
-func file_idl_favorite_proto_init() {
-	if File_idl_favorite_proto != nil {
+func init() { file_api_favorite_proto_init() }
+func file_api_favorite_proto_init() {
+	if File_api_favorite_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_idl_favorite_proto_rawDesc,
+			RawDescriptor: file_api_favorite_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_idl_favorite_proto_goTypes,
-		DependencyIndexes: file_idl_favorite_proto_depIdxs,
-		MessageInfos:      file_idl_favorite_proto_msgTypes,
+		GoTypes:           file_api_favorite_proto_goTypes,
+		DependencyIndexes: file_api_favorite_proto_depIdxs,
+		MessageInfos:      file_api_favorite_proto_msgTypes,
 	}.Build()
-	File_idl_favorite_proto = out.File
-	file_idl_favorite_proto_rawDesc = nil
-	file_idl_favorite_proto_goTypes = nil
-	file_idl_favorite_proto_depIdxs = nil
+	File_api_favorite_proto = out.File
+	file_api_favorite_proto_rawDesc = nil
+	file_api_favorite_proto_goTypes = nil
+	file_api_favorite_proto_depIdxs = nil
 }

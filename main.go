@@ -9,8 +9,10 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/oklog/run"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/crazyfrankie/favorite/ioc"
+	"github.com/crazyfrankie/favorite/internal/ioc"
+	"github.com/crazyfrankie/favorite/internal/rpc"
 )
 
 func main() {
@@ -31,7 +33,13 @@ func main() {
 
 	favoriteServer := &http.Server{Addr: ":9092"}
 	g.Add(func() error {
-		//mux := http.NewServeMux()
+		mux := http.NewServeMux()
+		mux.Handle("/metrics", promhttp.HandlerFor(
+			rpc.PromRegistry,
+			promhttp.HandlerOpts{
+				EnableOpenMetrics: true,
+			},
+		))
 		return nil
 	}, func(err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

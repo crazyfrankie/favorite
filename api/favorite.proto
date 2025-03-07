@@ -1,0 +1,72 @@
+syntax="proto3";
+
+package favorite;
+
+option go_package = "/favorite";
+
+message FavoriteActionRequest {
+  string biz = 1;
+  int64 biz_id = 2;
+  int32 action_type = 3;
+  int64 user_id = 4;
+}
+
+message FavoriteActionResponse {
+
+}
+
+message FavoriteListRequest {
+  int64 user_id = 1;
+}
+
+message FavoriteListResponse {
+  repeated int64 biz_id = 1;
+}
+
+// 用户是否点赞
+message IsFavoriteRequest {
+  int64 user_id = 1;
+  int64 biz_id = 2;
+}
+
+message IsFavoriteResponse {
+  bool favorite = 1;
+}
+
+// 用户点赞总数
+message UserFavoriteCountRequest {
+  int64 user_id = 1;
+}
+
+message UserFavoriteCountResponse {
+  int64 count = 1;
+}
+
+// 用户被点赞总数
+message UserFavoritedCountRequest {
+  string biz = 1;
+  repeated int64 biz_id = 2;
+}
+
+message UserFavoritedCountResponse {
+  int64 count = 1;
+}
+
+// 获取单个内容的点赞数
+message FavoriteCountRequest {
+  string biz = 1;
+  int64 biz_id = 2;
+}
+
+message FavoriteCountResponse {
+  int64 count = 1;
+}
+
+service FavoriteService {
+  rpc FavoriteAction (FavoriteActionRequest) returns (FavoriteActionResponse);
+  rpc FavoriteList(FavoriteListRequest) returns (FavoriteListResponse);
+  rpc IsFavorite(IsFavoriteRequest) returns (IsFavoriteResponse);
+  rpc UserFavoriteCount(UserFavoriteCountRequest) returns (UserFavoriteCountResponse);
+  rpc UserFavoritedCount(UserFavoritedCountRequest) returns (UserFavoritedCountResponse);
+  rpc FavoriteCount(FavoriteCountRequest) returns (FavoriteCountResponse);
+}
