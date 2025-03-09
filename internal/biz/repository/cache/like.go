@@ -28,6 +28,7 @@ func NewFavoriteCache(cmd redis.Cmdable) *FavoriteCache {
 func (c *FavoriteCache) CreateFavorite(ctx context.Context, biz string, bizId, uid int64) error {
 	userKey := c.userKey(uid)
 	countKey := c.countKey(biz)
+	bizUserKey := c.bizUserKey(biz, bizId)
 	field := fmt.Sprintf("%d", bizId)
 
 	// 先判断是否已点赞（幂等性检查）
@@ -42,6 +43,7 @@ func (c *FavoriteCache) CreateFavorite(ctx context.Context, biz string, bizId, u
 	// 事务性增加点赞记录 + 递增点赞数
 	pipe := c.cmd.TxPipeline()
 	pipe.SAdd(ctx, userKey, bizId)        // 记录点赞
+	pipe.SAdd(ctx, bizUserKey, uid)       // 记录内容被谁点赞
 	pipe.HIncrBy(ctx, countKey, field, 1) // 点赞数+1
 	_, err = pipe.Exec(ctx)               // 执行事务
 
@@ -52,6 +54,7 @@ func (c *FavoriteCache) CreateFavorite(ctx context.Context, biz string, bizId, u
 func (c *FavoriteCache) DeleteFavorite(ctx context.Context, biz string, bizId, uid int64) error {
 	userKey := c.userKey(uid)
 	countKey := c.countKey(biz)
+	bizUserKey := c.bizUserKey(biz, bizId)
 	field := fmt.Sprintf("%d", bizId)
 
 	// 先判断是否已点赞（幂等性检查）
@@ -66,6 +69,7 @@ func (c *FavoriteCache) DeleteFavorite(ctx context.Context, biz string, bizId, u
 	// 事务性删除点赞记录 + 递减点赞数
 	pipe := c.cmd.TxPipeline()
 	pipe.SRem(ctx, userKey, bizId)         // 删除点赞记录
+	pipe.SRem(ctx, bizUserKey, uid)        // 删除内容被谁点赞
 	pipe.HIncrBy(ctx, countKey, field, -1) // 点赞数-1
 	_, err = pipe.Exec(ctx)                // 执行事务
 
@@ -86,6 +90,24 @@ func (c *FavoriteCache) FavoriteCount(ctx context.Context, biz string, bizId int
 	}
 
 	return res, nil
+}
+
+// BizFavoriteUser 获取某个内容的点赞用户
+func (c *FavoriteCache) BizFavoriteUser(ctx context.Context, biz string, bizId int64) ([]int64, error) {
+	bizUserKey := c.bizUserKey(biz, bizId)
+
+	result, err := c.cmd.SMembers(ctx, bizUserKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]int64, len(result))
+	for _, v := range result {
+		uid, _ := strconv.ParseInt(v, 10, 64)
+		users = append(users, uid)
+	}
+
+	return users, nil
 }
 
 // UserFavoriteCount 获取用户的点赞内容总数
@@ -207,4 +229,8 @@ func (c *FavoriteCache) countKey(biz string) string {
 
 func (c *FavoriteCache) userKey(uid int64) string {
 	return fmt.Sprintf("favorite:user:%d", uid)
+}
+
+func (c *FavoriteCache) bizUserKey(biz string, bizId int64) string {
+	return fmt.Sprintf("favorite:biz:%s:%d:users", biz, bizId)
 }

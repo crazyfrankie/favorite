@@ -52,7 +52,6 @@ func (f *FavoriteServer) FavoriteAction(ctx context.Context, req *favorite.Favor
 		}
 	}
 
-	// 成功返回
 	return &favorite.FavoriteActionResponse{}, nil
 }
 
@@ -74,6 +73,16 @@ func (f *FavoriteServer) FavoriteCount(ctx context.Context, req *favorite.Favori
 	}
 
 	return &favorite.FavoriteCountResponse{Count: count}, nil
+}
+
+// BizFavoriteUser 查询某个内容的点赞用户
+func (f *FavoriteServer) BizFavoriteUser(ctx context.Context, req *favorite.BizFavoriteUserRequest) (*favorite.BizFavoriteUserResponse, error) {
+	res, err := f.repo.BizFavoriteUser(ctx, req.GetBiz(), req.GetBizId())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get favorite user: %v", err)
+	}
+
+	return &favorite.BizFavoriteUserResponse{UserId: res}, nil
 }
 
 // IsFavorite 获取用户是否点赞

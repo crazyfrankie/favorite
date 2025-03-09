@@ -10,6 +10,7 @@ require (
 	github.com/oklog/run v1.1.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/redis/go-redis/v9 v9.7.1
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/viper v1.19.0
 	go.etcd.io/etcd/client/v3 v3.5.12
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0

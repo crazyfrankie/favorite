@@ -3,13 +3,14 @@ package registry
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/naming/endpoints"
 	"go.uber.org/zap"
 
-	"github.com/crazyfrankie/favorite/internal/config"
+	"github.com/crazyfrankie/favorite/config"
 )
 
 type ServiceRegistry struct {
@@ -17,6 +18,7 @@ type ServiceRegistry struct {
 	em         endpoints.Manager
 	addr       string
 	serviceKey string
+	mu         sync.Mutex
 	leaseID    clientv3.LeaseID
 }
 
@@ -37,8 +39,7 @@ func NewServiceRegistry(cli *clientv3.Client) (*ServiceRegistry, error) {
 }
 
 func (r *ServiceRegistry) Register() error {
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	leaseResp, err := r.client.Grant(ctx, 180)
@@ -46,7 +47,9 @@ func (r *ServiceRegistry) Register() error {
 		return err
 	}
 
+	r.mu.Lock()
 	r.leaseID = leaseResp.ID
+	r.mu.Unlock()
 
 	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

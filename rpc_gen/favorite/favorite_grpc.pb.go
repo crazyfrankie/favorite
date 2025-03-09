@@ -25,6 +25,7 @@ const (
 	FavoriteService_UserFavoriteCount_FullMethodName  = "/favorite.FavoriteService/UserFavoriteCount"
 	FavoriteService_UserFavoritedCount_FullMethodName = "/favorite.FavoriteService/UserFavoritedCount"
 	FavoriteService_FavoriteCount_FullMethodName      = "/favorite.FavoriteService/FavoriteCount"
+	FavoriteService_BizFavoriteUser_FullMethodName    = "/favorite.FavoriteService/BizFavoriteUser"
 )
 
 // FavoriteServiceClient is the client API for FavoriteService service.
@@ -37,6 +38,7 @@ type FavoriteServiceClient interface {
 	UserFavoriteCount(ctx context.Context, in *UserFavoriteCountRequest, opts ...grpc.CallOption) (*UserFavoriteCountResponse, error)
 	UserFavoritedCount(ctx context.Context, in *UserFavoritedCountRequest, opts ...grpc.CallOption) (*UserFavoritedCountResponse, error)
 	FavoriteCount(ctx context.Context, in *FavoriteCountRequest, opts ...grpc.CallOption) (*FavoriteCountResponse, error)
+	BizFavoriteUser(ctx context.Context, in *BizFavoriteUserRequest, opts ...grpc.CallOption) (*BizFavoriteUserResponse, error)
 }
 
 type favoriteServiceClient struct {
@@ -107,6 +109,16 @@ func (c *favoriteServiceClient) FavoriteCount(ctx context.Context, in *FavoriteC
 	return out, nil
 }
 
+func (c *favoriteServiceClient) BizFavoriteUser(ctx context.Context, in *BizFavoriteUserRequest, opts ...grpc.CallOption) (*BizFavoriteUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BizFavoriteUserResponse)
+	err := c.cc.Invoke(ctx, FavoriteService_BizFavoriteUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FavoriteServiceServer is the server API for FavoriteService service.
 // All implementations must embed UnimplementedFavoriteServiceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type FavoriteServiceServer interface {
 	UserFavoriteCount(context.Context, *UserFavoriteCountRequest) (*UserFavoriteCountResponse, error)
 	UserFavoritedCount(context.Context, *UserFavoritedCountRequest) (*UserFavoritedCountResponse, error)
 	FavoriteCount(context.Context, *FavoriteCountRequest) (*FavoriteCountResponse, error)
+	BizFavoriteUser(context.Context, *BizFavoriteUserRequest) (*BizFavoriteUserResponse, error)
 	mustEmbedUnimplementedFavoriteServiceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedFavoriteServiceServer) UserFavoritedCount(context.Context, *U
 }
 func (UnimplementedFavoriteServiceServer) FavoriteCount(context.Context, *FavoriteCountRequest) (*FavoriteCountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavoriteCount not implemented")
+}
+func (UnimplementedFavoriteServiceServer) BizFavoriteUser(context.Context, *BizFavoriteUserRequest) (*BizFavoriteUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BizFavoriteUser not implemented")
 }
 func (UnimplementedFavoriteServiceServer) mustEmbedUnimplementedFavoriteServiceServer() {}
 func (UnimplementedFavoriteServiceServer) testEmbeddedByValue()                         {}
@@ -274,6 +290,24 @@ func _FavoriteService_FavoriteCount_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FavoriteService_BizFavoriteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BizFavoriteUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FavoriteServiceServer).BizFavoriteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FavoriteService_BizFavoriteUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FavoriteServiceServer).BizFavoriteUser(ctx, req.(*BizFavoriteUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FavoriteService_ServiceDesc is the grpc.ServiceDesc for FavoriteService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var FavoriteService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FavoriteCount",
 			Handler:    _FavoriteService_FavoriteCount_Handler,
+		},
+		{
+			MethodName: "BizFavoriteUser",
+			Handler:    _FavoriteService_BizFavoriteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

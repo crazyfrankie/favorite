@@ -62,6 +62,16 @@ message FavoriteCountResponse {
   int64 count = 1;
 }
 
+// 查询某个内容的点赞用户
+message BizFavoriteUserRequest {
+  string biz = 1;
+  int64 biz_id = 2;
+}
+
+message BizFavoriteUserResponse {
+  repeated int64 user_id = 1;
+}
+
 service FavoriteService {
   rpc FavoriteAction (FavoriteActionRequest) returns (FavoriteActionResponse);
   rpc FavoriteList(FavoriteListRequest) returns (FavoriteListResponse);
@@ -69,4 +79,5 @@ service FavoriteService {
   rpc UserFavoriteCount(UserFavoriteCountRequest) returns (UserFavoriteCountResponse);
   rpc UserFavoritedCount(UserFavoritedCountRequest) returns (UserFavoritedCountResponse);
   rpc FavoriteCount(FavoriteCountRequest) returns (FavoriteCountResponse);
+  rpc BizFavoriteUser(BizFavoriteUserRequest) returns (BizFavoriteUserResponse);
 }

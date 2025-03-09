@@ -20,9 +20,10 @@ import (
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
+	"github.com/crazyfrankie/favorite/config"
 	"github.com/crazyfrankie/favorite/internal/biz/service"
-	"github.com/crazyfrankie/favorite/internal/config"
 	"github.com/crazyfrankie/favorite/pkg/registry"
 	"github.com/crazyfrankie/favorite/rpc_gen/favorite"
 )
@@ -75,7 +76,9 @@ func NewServer(f *service.FavoriteServer, client *clientv3.Client) *Server {
 			logging.UnaryServerInterceptor(interceptorLogger(logger), logging.WithFieldsFromContext(traceId)),
 		),
 	)
+	reflection.Register(s)
 	favorite.RegisterFavoriteServiceServer(s, f)
+	favoriteMetrics.InitializeMetrics(s)
 
 	rgy, err := registry.NewServiceRegistry(client)
 	if err != nil {

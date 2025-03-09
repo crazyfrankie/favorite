@@ -4,6 +4,12 @@ package ioc
 
 import (
 	"fmt"
+	"github.com/crazyfrankie/favorite/config"
+	"github.com/crazyfrankie/favorite/internal/biz/repository"
+	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
+	"github.com/crazyfrankie/favorite/internal/biz/repository/dao"
+	"github.com/crazyfrankie/favorite/internal/biz/service"
+	"github.com/crazyfrankie/favorite/internal/rpc"
 	"os"
 	"time"
 
@@ -13,13 +19,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-
-	"github.com/crazyfrankie/favorite/internal/biz/repository"
-	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
-	"github.com/crazyfrankie/favorite/internal/biz/repository/dao"
-	"github.com/crazyfrankie/favorite/internal/biz/service"
-	"github.com/crazyfrankie/favorite/internal/config"
-	"github.com/crazyfrankie/favorite/internal/rpc"
 )
 
 func InitDB() *gorm.DB {
@@ -34,6 +33,9 @@ func InitDB() *gorm.DB {
 			SingularTable: true,
 		},
 	})
+
+	db.AutoMigrate(&dao.FavoriteCount{}, &dao.UserFavorite{})
+
 	if err != nil {
 		panic(err)
 	}

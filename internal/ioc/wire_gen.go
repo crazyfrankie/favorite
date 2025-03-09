@@ -8,11 +8,11 @@ package ioc
 
 import (
 	"fmt"
+	"github.com/crazyfrankie/favorite/config"
 	"github.com/crazyfrankie/favorite/internal/biz/repository"
 	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
-	"github.com/crazyfrankie/favorite/internal/biz/repository/dao"
+	dao2 "github.com/crazyfrankie/favorite/internal/biz/repository/dao"
 	"github.com/crazyfrankie/favorite/internal/biz/service"
-	"github.com/crazyfrankie/favorite/internal/config"
 	"github.com/crazyfrankie/favorite/internal/rpc"
 	"github.com/redis/go-redis/v9"
 	"go.etcd.io/etcd/client/v3"
@@ -29,7 +29,7 @@ func InitServer() *rpc.Server {
 	cmdable := InitCache()
 	favoriteCache := cache.NewFavoriteCache(cmdable)
 	db := InitDB()
-	favoriteDao := dao.NewFavoriteDao(db)
+	favoriteDao := dao2.NewFavoriteDao(db)
 	favoriteRepo := repository.NewFavoriteRepo(favoriteCache, favoriteDao)
 	favoriteServer := service.NewFavoriteServer(favoriteRepo)
 	client := InitRegistry()
@@ -46,6 +46,9 @@ func InitDB() *gorm.DB {
 			SingularTable: true,
 		},
 	})
+
+	db.AutoMigrate(&dao2.FavoriteCount{}, &dao2.UserFavorite{})
+
 	if err != nil {
 		panic(err)
 	}

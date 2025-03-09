@@ -39,6 +39,11 @@ func (r *FavoriteRepo) FavoriteCount(ctx context.Context, biz string, bizId int6
 	return r.cache.FavoriteCount(ctx, biz, bizId)
 }
 
+// BizFavoriteUser 获取某个内容的点赞用户
+func (r *FavoriteRepo) BizFavoriteUser(ctx context.Context, biz string, bizId int64) ([]int64, error) {
+	return r.cache.BizFavoriteUser(ctx, biz, bizId)
+}
+
 // UserFavoriteCount 获取用户的点赞内容总数
 func (r *FavoriteRepo) UserFavoriteCount(ctx context.Context, uid int64) (int64, error) {
 	return r.cache.UserFavoriteCount(ctx, uid)
