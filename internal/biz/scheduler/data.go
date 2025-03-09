@@ -18,7 +18,7 @@ type DataScheduler struct {
 
 func NewScheduler(repo *repository.FavoriteRepo, opts ...Option) *DataScheduler {
 	opt := &option{
-		interval: 5, // 默认 5 分钟同步
+		interval: 120, // 默认 120 分钟同步
 	}
 	for _, o := range opts {
 		o(opt)

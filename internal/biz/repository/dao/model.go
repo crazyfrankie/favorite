@@ -11,9 +11,9 @@ type FavoriteCount struct {
 
 type UserFavorite struct {
 	Id     int64  `gorm:"primaryKey,autoIncrement"`
-	UserId int32  `gorm:"index:idx_uid"` // 用户 ID
+	UserId int64  `gorm:"index:idx_uid"` // 用户 ID
 	Biz    string `gorm:"index:idx_biz;type:varchar(128)"`
-	BizId  int32  `gorm:"index:idx_biz"`
+	BizId  int64  `gorm:"index:idx_biz"`
 	Status uint8  `gorm:"not null;default:1"` // 0: 取消点赞, 1: 点赞
 	Ctime  int64  `gorm:"autoCreateTime"`
 	Utime  int64  `gorm:"autoUpdateTime"`

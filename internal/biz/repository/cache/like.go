@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
-
-	"go.uber.org/zap"
+	"strings"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -24,69 +25,95 @@ func NewFavoriteCache(cmd redis.Cmdable) *FavoriteCache {
 	return &FavoriteCache{cmd: cmd}
 }
 
-// CreateFavorite 创建点赞记录及递增点赞数
+func (c *FavoriteCache) keys() struct {
+	// 全局计数器hash, field为"{biz}:{bizId}", value为点赞数
+	countKey string
+	// 全局业务类型set，记录所有biz
+	bizTypesKey string
+	// 业务维度的点赞用户set模板, 填充biz,bizId后使用
+	bizUserKey string
+	// 用户维度的点赞记录set模板, 填充uid后使用
+	userFavoriteKey   string
+	userUnFavoriteKey string
+} {
+	return struct {
+		countKey          string
+		bizTypesKey       string
+		bizUserKey        string
+		userFavoriteKey   string
+		userUnFavoriteKey string
+	}{
+		countKey:          "favorite:counts",          // 全局计数器
+		bizTypesKey:       "favorite:biz:types",       // 业务类型集合
+		bizUserKey:        "favorite:biz:%s:%d:users", // 记录内容被谁点赞
+		userFavoriteKey:   "favorite:user:%d",         // 记录用户点赞了什么
+		userUnFavoriteKey: "unfavorite:user:%d",       // 记录用户取消点赞了什么
+	}
+}
+
+// CreateFavorite 创建点赞时维护业务类型
 func (c *FavoriteCache) CreateFavorite(ctx context.Context, biz string, bizId, uid int64) error {
-	userKey := c.userKey(uid)
-	countKey := c.countKey(biz)
-	bizUserKey := c.bizUserKey(biz, bizId)
-	field := fmt.Sprintf("%d", bizId)
+	keys := c.keys()
 
-	// 先判断是否已点赞（幂等性检查）
-	exists, err := c.cmd.SIsMember(ctx, userKey, bizId).Result()
-	if err != nil {
-		return err
-	}
-	if exists { // 如果已经点过赞，直接返回错误，防止重复点赞
-		return ErrAlreadyExists
-	}
-
-	// 事务性增加点赞记录 + 递增点赞数
 	pipe := c.cmd.TxPipeline()
-	pipe.SAdd(ctx, userKey, bizId)        // 记录点赞
-	pipe.SAdd(ctx, bizUserKey, uid)       // 记录内容被谁点赞
-	pipe.HIncrBy(ctx, countKey, field, 1) // 点赞数+1
-	_, err = pipe.Exec(ctx)               // 执行事务
+	pipe.SAdd(ctx, keys.bizTypesKey, biz)
+
+	field := fmt.Sprintf("%s:%d", biz, bizId)
+	pipe.HIncrBy(ctx, keys.countKey, field, 1)
+
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
+	pipe.ZAdd(ctx, userKey, redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: fmt.Sprintf("%s:%d", biz, bizId),
+	})
+
+	// 记录内容被点赞
+	bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, bizId)
+	pipe.SAdd(ctx, bizUserKey, uid)
+	pipe.Expire(ctx, userKey, 7*24*time.Hour)
+
+	_, err := pipe.Exec(ctx)
 
 	return err
 }
 
 // DeleteFavorite 删除点赞记录及递减点赞数
 func (c *FavoriteCache) DeleteFavorite(ctx context.Context, biz string, bizId, uid int64) error {
-	userKey := c.userKey(uid)
-	countKey := c.countKey(biz)
-	bizUserKey := c.bizUserKey(biz, bizId)
-	field := fmt.Sprintf("%d", bizId)
+	keys := c.keys()
 
-	// 先判断是否已点赞（幂等性检查）
-	exists, err := c.cmd.SIsMember(ctx, userKey, bizId).Result()
-	if err != nil {
-		return err
-	}
-	if !exists { // 如果点赞记录不存在，直接返回错误，防止重复取消
-		return ErrNotFound
-	}
-
-	// 事务性删除点赞记录 + 递减点赞数
 	pipe := c.cmd.TxPipeline()
-	pipe.SRem(ctx, userKey, bizId)         // 删除点赞记录
-	pipe.SRem(ctx, bizUserKey, uid)        // 删除内容被谁点赞
-	pipe.HIncrBy(ctx, countKey, field, -1) // 点赞数-1
-	_, err = pipe.Exec(ctx)                // 执行事务
+	// 更新计数
+	field := fmt.Sprintf("%s:%d", biz, bizId)
+	pipe.HIncrBy(ctx, keys.countKey, field, -1)
+
+	// 记录用户取消点赞
+	userKey := fmt.Sprintf(keys.userUnFavoriteKey, uid)
+	pipe.ZAdd(ctx, userKey, redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: fmt.Sprintf("%s:%d", biz, bizId),
+	})
+
+	// 删除点赞内容记录
+	bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, bizId)
+	pipe.SRem(ctx, bizUserKey, uid)
+
+	pipe.Expire(ctx, userKey, 7*24*time.Hour)
+	_, err := pipe.Exec(ctx)
 
 	return err
 }
 
 // FavoriteCount 获取单个内容的点赞总数
 func (c *FavoriteCache) FavoriteCount(ctx context.Context, biz string, bizId int64) (int64, error) {
-	countKey := c.countKey(biz)
-	field := fmt.Sprintf("%d", bizId)
+	keys := c.keys()
 
-	res, err := c.cmd.HGet(ctx, countKey, field).Int64()
+	field := fmt.Sprintf("%s:%d", biz, bizId)
+	res, err := c.cmd.HGet(ctx, keys.countKey, field).Int64()
 	if errors.Is(err, redis.Nil) {
-		return 0, nil // 如果 key 不存在，返回 0
+		return 0, nil
 	}
 	if err != nil {
-		return 0, err // 其他错误返回
+		return 0, err
 	}
 
 	return res, nil
@@ -94,15 +121,16 @@ func (c *FavoriteCache) FavoriteCount(ctx context.Context, biz string, bizId int
 
 // BizFavoriteUser 获取某个内容的点赞用户
 func (c *FavoriteCache) BizFavoriteUser(ctx context.Context, biz string, bizId int64) ([]int64, error) {
-	bizUserKey := c.bizUserKey(biz, bizId)
+	keys := c.keys()
 
-	result, err := c.cmd.SMembers(ctx, bizUserKey).Result()
+	bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, bizId)
+	res, err := c.cmd.SMembers(ctx, bizUserKey).Result()
 	if err != nil {
 		return nil, err
 	}
 
-	users := make([]int64, len(result))
-	for _, v := range result {
+	users := make([]int64, len(res))
+	for _, v := range res {
 		uid, _ := strconv.ParseInt(v, 10, 64)
 		users = append(users, uid)
 	}
@@ -112,12 +140,13 @@ func (c *FavoriteCache) BizFavoriteUser(ctx context.Context, biz string, bizId i
 
 // UserFavoriteCount 获取用户的点赞内容总数
 func (c *FavoriteCache) UserFavoriteCount(ctx context.Context, uid int64) (int64, error) {
-	userKey := c.userKey(uid)
+	keys := c.keys()
 
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
 	res, err := c.cmd.SCard(ctx, userKey).Uint64()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return 0, nil // 用户从未点赞，返回 0
+			return 0, nil
 		}
 		return 0, err
 	}
@@ -125,112 +154,144 @@ func (c *FavoriteCache) UserFavoriteCount(ctx context.Context, uid int64) (int64
 	return int64(res), nil
 }
 
-// UserFavoriteElements 用户点赞的内容 ID 集合
-func (c *FavoriteCache) UserFavoriteElements(ctx context.Context, uid int64) ([]int64, error) {
-	userKey := c.userKey(uid)
+// UserFavoriteElements 用户点赞的内容集合
+func (c *FavoriteCache) UserFavoriteElements(ctx context.Context, uid int64) (map[string]int64, error) {
+	keys := c.keys()
 
-	result, err := c.cmd.SDiff(ctx, userKey).Result()
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
+	result, err := c.cmd.SMembers(ctx, userKey).Result()
 	if err != nil {
-		return []int64{}, err
+		return nil, err
 	}
 
-	res := make([]int64, len(result))
+	res := make(map[string]int64, len(result))
 	for _, v := range result {
-		val, _ := strconv.ParseInt(v, 10, 0)
-		res = append(res, val)
+		strs := strings.Split(v, ":")
+		bizId, _ := strconv.ParseInt(strs[1], 10, 64)
+		res[strs[0]] = bizId
 	}
 
 	return res, nil
 }
 
 // UserFavoritedCount 获取用户的内容被点赞总数
-func (c *FavoriteCache) UserFavoritedCount(ctx context.Context, biz string, bizIds []int64) (int64, error) {
-	countKey := c.countKey(biz)
-	fields := make([]string, len(bizIds))
-	for i, id := range bizIds {
-		fields[i] = fmt.Sprintf("%d", id)
-	}
-
-	res, err := c.cmd.HMGet(ctx, countKey, fields...).Result()
-	if err != nil {
-		return 0, err
-	}
+func (c *FavoriteCache) UserFavoritedCount(ctx context.Context, bizs map[string][]int64) (int64, error) {
+	keys := c.keys()
 
 	var count int64
-	for _, v := range res {
-		if v == nil {
-			continue
+	for biz, bizIds := range bizs {
+		for _, v := range bizIds {
+			bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, v)
+			res, err := c.cmd.SCard(ctx, bizUserKey).Result()
+			if err != nil {
+				return 0, nil
+			}
+			count += res
 		}
-		val, err := strconv.ParseInt(fmt.Sprintf("%v", v), 10, 64)
-		if err != nil {
-			zap.L().Warn("Failed to parse count", zap.Any("value", v), zap.Error(err))
-			continue
-		}
-		count += val
 	}
 
 	return count, nil
 }
 
 // IsUserFavorite 用户是否点赞了某个内容
-func (c *FavoriteCache) IsUserFavorite(ctx context.Context, uid, bizId int64) (bool, error) {
-	userKey := c.userKey(uid)
-	exists, err := c.cmd.SIsMember(ctx, userKey, bizId).Result()
+func (c *FavoriteCache) IsUserFavorite(ctx context.Context, biz string, uid, bizId int64) (bool, error) {
+	keys := c.keys()
+
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
+	res, err := c.cmd.SIsMember(ctx, userKey, fmt.Sprintf("%s:%d", biz, bizId)).Result()
 	if err != nil {
 		return false, err
 	}
 
-	return exists, nil
-}
-
-// BatchIsUserFavorite 批量查询用户是否点赞了某个内容
-func (c *FavoriteCache) BatchIsUserFavorite(ctx context.Context, uid int64, bizIds []int64) (map[int64]bool, error) {
-	userKey := c.userKey(uid)
-	args := make([]interface{}, len(bizIds))
-	for i, id := range bizIds {
-		args[i] = id
-	}
-
-	res, err := c.cmd.SMIsMember(ctx, userKey, args...).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	resultMap := make(map[int64]bool, len(bizIds))
-	for i, v := range res {
-		resultMap[bizIds[i]] = v
-	}
-
-	return resultMap, nil
+	return res, nil
 }
 
 // GetTopFavoriteContent 点赞数排行榜
 func (c *FavoriteCache) GetTopFavoriteContent(ctx context.Context, biz string, topN int64) ([]int64, error) {
-	countKey := c.countKey(biz)
+	keys := c.keys()
 
-	// 按照点赞数降序获取前 topN 个内容
-	res, err := c.cmd.ZRevRange(ctx, countKey, 0, topN-1).Result()
+	// 获取所有计数
+	all, err := c.cmd.HGetAll(ctx, keys.countKey).Result()
 	if err != nil {
 		return nil, err
 	}
 
-	topBizIds := make([]int64, len(res))
-	for i, v := range res {
-		id, _ := strconv.ParseInt(v, 10, 64)
-		topBizIds[i] = id
+	// 过滤出指定biz的数据并排序
+	type pair struct {
+		bizId int64
+		count int64
+	}
+	pairs := make([]pair, 0, len(all))
+
+	for field, count := range all {
+		parts := strings.Split(field, ":")
+		if len(parts) != 2 || parts[0] != biz {
+			continue
+		}
+
+		bizId, _ := strconv.ParseInt(parts[1], 10, 64)
+		cnt, _ := strconv.ParseInt(count, 10, 64)
+		pairs = append(pairs, pair{bizId: bizId, count: cnt})
 	}
 
-	return topBizIds, nil
+	// 按点赞数排序
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].count > pairs[j].count
+	})
+
+	// 取前N个
+	if int64(len(pairs)) > topN {
+		pairs = pairs[:topN]
+	}
+
+	result := make([]int64, len(pairs))
+	for i, p := range pairs {
+		result[i] = p.bizId
+	}
+
+	return result, nil
 }
 
-func (c *FavoriteCache) countKey(biz string) string {
-	return fmt.Sprintf("favorite:count:%s", biz)
+// GetUserRecentFavorites 获取用户最近的点赞记录
+func (c *FavoriteCache) GetUserRecentFavorites(ctx context.Context, uid int64, limit int64) ([]string, error) {
+	keys := c.keys()
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
+
+	// 使用 ZREVRANGE 获取最近的点赞记录
+	return c.cmd.ZRevRange(ctx, userKey, 0, limit-1).Result()
 }
 
-func (c *FavoriteCache) userKey(uid int64) string {
-	return fmt.Sprintf("favorite:user:%d", uid)
+// GetUserUnFavorites 获取用户的取消点赞记录
+func (c *FavoriteCache) GetUserUnFavorites(ctx context.Context, uid int64) (map[string]int64, error) {
+	keys := c.keys()
+	userKey := fmt.Sprintf(keys.userUnFavoriteKey, uid)
+
+	result, err := c.cmd.SMembers(ctx, userKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]int64, len(result))
+	for _, v := range result {
+		strs := strings.Split(v, ":")
+		bizId, _ := strconv.ParseInt(strs[1], 10, 64)
+		res[strs[0]] = bizId
+	}
+	return res, nil
 }
 
-func (c *FavoriteCache) bizUserKey(biz string, bizId int64) string {
-	return fmt.Sprintf("favorite:biz:%s:%d:users", biz, bizId)
+// CleanupUserHistory 清理用户的历史记录
+func (c *FavoriteCache) CleanupUserHistory(ctx context.Context, uid int64, days int) error {
+	keys := c.keys()
+	deadline := time.Now().AddDate(0, 0, -days).Unix()
+
+	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
+	unFavoriteKey := fmt.Sprintf(keys.userUnFavoriteKey, uid)
+
+	pipe := c.cmd.TxPipeline()
+	pipe.ZRemRangeByScore(ctx, userKey, "0", fmt.Sprintf("%d", deadline))
+	pipe.Del(ctx, unFavoriteKey)
+
+	_, err := pipe.Exec(ctx)
+	return err
 }
