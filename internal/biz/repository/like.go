@@ -50,7 +50,7 @@ func (r *FavoriteRepo) UserFavoriteCount(ctx context.Context, uid int64) (int64,
 }
 
 // UserFavoriteElements 用户点赞的内容 ID 集合
-func (r *FavoriteRepo) UserFavoriteElements(ctx context.Context, uid int64) ([]int64, error) {
+func (r *FavoriteRepo) UserFavoriteElements(ctx context.Context, uid int64) ([]string, error) {
 	return r.cache.UserFavoriteElements(ctx, uid)
 }
 
@@ -60,13 +60,8 @@ func (r *FavoriteRepo) UserFavoritedCount(ctx context.Context, biz string, bizId
 }
 
 // IsUserFavorite 用户是否点赞了某个内容
-func (r *FavoriteRepo) IsUserFavorite(ctx context.Context, uid, bizId int64) (bool, error) {
-	return r.cache.IsUserFavorite(ctx, uid, bizId)
-}
-
-// BatchIsUserFavorite 批量查询用户是否点赞了某个内容
-func (r *FavoriteRepo) BatchIsUserFavorite(ctx context.Context, uid int64, bizIds []int64) (map[int64]bool, error) {
-	return r.cache.BatchIsUserFavorite(ctx, uid, bizIds)
+func (r *FavoriteRepo) IsUserFavorite(ctx context.Context, biz string, uid, bizId int64) (bool, error) {
+	return r.cache.IsUserFavorite(ctx, biz, uid, bizId)
 }
 
 // GetTopFavoriteContent 点赞数排行榜

@@ -7,21 +7,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
-	"github.com/crazyfrankie/favorite/internal/ioc"
-	"github.com/crazyfrankie/favorite/internal/rpc"
+	"github.com/crazyfrankie/favorite/internal/config"
+	"github.com/crazyfrankie/favorite/rpc"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
-
-	server := ioc.InitServer()
+	server := rpc.NewServer(initRegistry())
 
 	g := &run.Group{}
 
@@ -56,4 +51,16 @@ func main() {
 		log.Printf("program interrupted, err:%s", err)
 		return
 	}
+}
+
+func initRegistry() *clientv3.Client {
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints:   []string{config.GetConf().ETCD.EndPoints},
+		DialTimeout: time.Second * 2,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	return cli
 }

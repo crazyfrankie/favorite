@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/crazyfrankie/favorite/internal/biz/repository"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/crazyfrankie/favorite/internal/biz/repository"
+	"github.com/crazyfrankie/favorite/api/rpc_gen/favorite"
 	"github.com/crazyfrankie/favorite/pkg/constants"
-	"github.com/crazyfrankie/favorite/rpc_gen/favorite"
 )
 
 type FavoriteServer struct {
@@ -62,7 +62,7 @@ func (f *FavoriteServer) FavoriteList(ctx context.Context, req *favorite.Favorit
 		return nil, status.Errorf(codes.Internal, "failed to get favorite list: %v", err)
 	}
 
-	return &favorite.FavoriteListResponse{BizId: res}, nil
+	return &favorite.FavoriteListResponse{Lists: res}, nil
 }
 
 // FavoriteCount 获取单个内容的点赞数
@@ -87,7 +87,7 @@ func (f *FavoriteServer) BizFavoriteUser(ctx context.Context, req *favorite.BizF
 
 // IsFavorite 获取用户是否点赞
 func (f *FavoriteServer) IsFavorite(ctx context.Context, req *favorite.IsFavoriteRequest) (*favorite.IsFavoriteResponse, error) {
-	fav, err := f.repo.IsUserFavorite(ctx, req.GetUserId(), req.GetBizId())
+	fav, err := f.repo.IsUserFavorite(ctx, req.GetBiz(), req.GetUserId(), req.GetBizId())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get is favorite: %v", err)
 	}

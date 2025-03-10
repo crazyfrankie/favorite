@@ -2,4 +2,4 @@
 
 *.yaml
 
-.env
+internal/config/.env

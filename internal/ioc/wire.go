@@ -4,21 +4,19 @@ package ioc
 
 import (
 	"fmt"
-	"github.com/crazyfrankie/favorite/config"
+	"os"
+
+	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+
+	"github.com/crazyfrankie/favorite/internal/config"
 	"github.com/crazyfrankie/favorite/internal/biz/repository"
 	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
 	"github.com/crazyfrankie/favorite/internal/biz/repository/dao"
 	"github.com/crazyfrankie/favorite/internal/biz/service"
-	"github.com/crazyfrankie/favorite/internal/rpc"
-	"os"
-	"time"
-
-	"github.com/google/wire"
-	"github.com/redis/go-redis/v9"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 )
 
 func InitDB() *gorm.DB {
@@ -51,29 +49,15 @@ func InitCache() redis.Cmdable {
 	return cli
 }
 
-func InitRegistry() *clientv3.Client {
-	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{config.GetConf().ETCD.EndPoints},
-		DialTimeout: time.Second * 2,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	return cli
-}
-
-func InitServer() *rpc.Server {
+func InitServer() *service.FavoriteServer {
 	wire.Build(
 		InitDB,
 		InitCache,
-		InitRegistry,
 		dao.NewFavoriteDao,
 		cache.NewFavoriteCache,
 		repository.NewFavoriteRepo,
 		service.NewFavoriteServer,
-		rpc.NewServer,
 	)
 
-	return new(rpc.Server)
+	return new(service.FavoriteServer)
 }

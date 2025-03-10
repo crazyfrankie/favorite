@@ -3,14 +3,13 @@ package registry
 import (
 	"context"
 	"fmt"
+	"github.com/crazyfrankie/favorite/internal/config"
 	"sync"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/naming/endpoints"
 	"go.uber.org/zap"
-
-	"github.com/crazyfrankie/favorite/config"
 )
 
 type ServiceRegistry struct {

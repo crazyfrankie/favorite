@@ -22,10 +22,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/crazyfrankie/favorite/config"
-	"github.com/crazyfrankie/favorite/internal/biz/service"
+	"github.com/crazyfrankie/favorite/api/rpc_gen/favorite"
+	"github.com/crazyfrankie/favorite/internal/config"
+	"github.com/crazyfrankie/favorite/internal/ioc"
 	"github.com/crazyfrankie/favorite/pkg/registry"
-	"github.com/crazyfrankie/favorite/rpc_gen/favorite"
 )
 
 var (
@@ -38,7 +38,9 @@ type Server struct {
 	registry *registry.ServiceRegistry
 }
 
-func NewServer(f *service.FavoriteServer, client *clientv3.Client) *Server {
+func NewServer(client *clientv3.Client) *Server {
+	svc := ioc.InitServer()
+
 	logger, err := zap.NewProduction()
 	if err != nil {
 		panic(err)
@@ -77,7 +79,7 @@ func NewServer(f *service.FavoriteServer, client *clientv3.Client) *Server {
 		),
 	)
 	reflection.Register(s)
-	favorite.RegisterFavoriteServiceServer(s, f)
+	favorite.RegisterFavoriteServiceServer(s, svc)
 	favoriteMetrics.InitializeMetrics(s)
 
 	rgy, err := registry.NewServiceRegistry(client)

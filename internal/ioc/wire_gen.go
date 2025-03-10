@@ -8,33 +8,28 @@ package ioc
 
 import (
 	"fmt"
-	"github.com/crazyfrankie/favorite/config"
 	"github.com/crazyfrankie/favorite/internal/biz/repository"
 	"github.com/crazyfrankie/favorite/internal/biz/repository/cache"
 	dao2 "github.com/crazyfrankie/favorite/internal/biz/repository/dao"
 	"github.com/crazyfrankie/favorite/internal/biz/service"
-	"github.com/crazyfrankie/favorite/internal/rpc"
+	"github.com/crazyfrankie/favorite/internal/config"
 	"github.com/redis/go-redis/v9"
-	"go.etcd.io/etcd/client/v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"os"
-	"time"
 )
 
 // Injectors from wire.go:
 
-func InitServer() *rpc.Server {
+func InitServer() *service.FavoriteServer {
 	cmdable := InitCache()
 	favoriteCache := cache.NewFavoriteCache(cmdable)
 	db := InitDB()
 	favoriteDao := dao2.NewFavoriteDao(db)
 	favoriteRepo := repository.NewFavoriteRepo(favoriteCache, favoriteDao)
 	favoriteServer := service.NewFavoriteServer(favoriteRepo)
-	client := InitRegistry()
-	server := rpc.NewServer(favoriteServer, client)
-	return server
+	return favoriteServer
 }
 
 // wire.go:
@@ -60,18 +55,6 @@ func InitCache() redis.Cmdable {
 	cli := redis.NewClient(&redis.Options{
 		Addr: config.GetConf().Redis.Addr,
 	})
-
-	return cli
-}
-
-func InitRegistry() *clientv3.Client {
-	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{config.GetConf().ETCD.EndPoints},
-		DialTimeout: time.Second * 2,
-	})
-	if err != nil {
-		panic(err)
-	}
 
 	return cli
 }

@@ -20,13 +20,14 @@ message FavoriteListRequest {
 }
 
 message FavoriteListResponse {
-  repeated int64 biz_id = 1;
+  repeated string lists = 1;
 }
 
 // 用户是否点赞
 message IsFavoriteRequest {
   int64 user_id = 1;
   int64 biz_id = 2;
+  string biz = 3;
 }
 
 message IsFavoriteResponse {

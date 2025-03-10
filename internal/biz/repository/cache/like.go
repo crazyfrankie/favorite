@@ -155,39 +155,30 @@ func (c *FavoriteCache) UserFavoriteCount(ctx context.Context, uid int64) (int64
 }
 
 // UserFavoriteElements 用户点赞的内容集合
-func (c *FavoriteCache) UserFavoriteElements(ctx context.Context, uid int64) (map[string]int64, error) {
+func (c *FavoriteCache) UserFavoriteElements(ctx context.Context, uid int64) ([]string, error) {
 	keys := c.keys()
 
 	userKey := fmt.Sprintf(keys.userFavoriteKey, uid)
-	result, err := c.cmd.SMembers(ctx, userKey).Result()
+	res, err := c.cmd.SMembers(ctx, userKey).Result()
 	if err != nil {
 		return nil, err
-	}
-
-	res := make(map[string]int64, len(result))
-	for _, v := range result {
-		strs := strings.Split(v, ":")
-		bizId, _ := strconv.ParseInt(strs[1], 10, 64)
-		res[strs[0]] = bizId
 	}
 
 	return res, nil
 }
 
 // UserFavoritedCount 获取用户的内容被点赞总数
-func (c *FavoriteCache) UserFavoritedCount(ctx context.Context, bizs map[string][]int64) (int64, error) {
+func (c *FavoriteCache) UserFavoritedCount(ctx context.Context, biz string, bizIds []int64) (int64, error) {
 	keys := c.keys()
 
 	var count int64
-	for biz, bizIds := range bizs {
-		for _, v := range bizIds {
-			bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, v)
-			res, err := c.cmd.SCard(ctx, bizUserKey).Result()
-			if err != nil {
-				return 0, nil
-			}
-			count += res
+	for _, v := range bizIds {
+		bizUserKey := fmt.Sprintf(keys.bizUserKey, biz, v)
+		res, err := c.cmd.SCard(ctx, bizUserKey).Result()
+		if err != nil {
+			return 0, nil
 		}
+		count += res
 	}
 
 	return count, nil

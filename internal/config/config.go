@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"os"
 	"path/filepath"
 	"sync"
@@ -53,8 +54,15 @@ func GetConf() *Config {
 func initConf() {
 	env := getGoEnv()
 	prefix := "config"
-	filePath := filepath.Join(prefix, filepath.Join(env, "config.yaml"))
-	viper.SetConfigFile(filePath)
+
+	envFilePath := filepath.Join(prefix, ".env")
+	err := godotenv.Load(envFilePath)
+	if err != nil {
+		panic(err)
+	}
+
+	confFilePath := filepath.Join(prefix, filepath.Join(env, "config.yaml"))
+	viper.SetConfigFile(confFilePath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
