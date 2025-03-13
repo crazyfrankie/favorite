@@ -23,8 +23,8 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/crazyfrankie/favorite/api/rpc_gen/favorite"
+	"github.com/crazyfrankie/favorite/internal/biz/service"
 	"github.com/crazyfrankie/favorite/internal/config"
-	"github.com/crazyfrankie/favorite/internal/ioc"
 	"github.com/crazyfrankie/favorite/pkg/registry"
 )
 
@@ -38,9 +38,7 @@ type Server struct {
 	registry *registry.ServiceRegistry
 }
 
-func NewServer(client *clientv3.Client) *Server {
-	svc := ioc.InitServer()
-
+func NewServer(client *clientv3.Client, svc *service.FavoriteServer) *Server {
 	logger, err := zap.NewProduction()
 	if err != nil {
 		panic(err)

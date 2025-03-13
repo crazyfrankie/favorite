@@ -9,14 +9,24 @@ import (
 
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/robfig/cron/v3"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
 
+	"github.com/crazyfrankie/favorite/internal/biz/service"
 	"github.com/crazyfrankie/favorite/internal/config"
+	"github.com/crazyfrankie/favorite/internal/ioc"
+	"github.com/crazyfrankie/favorite/job/scheduler"
 	"github.com/crazyfrankie/favorite/rpc"
 )
 
 func main() {
-	server := rpc.NewServer(initRegistry())
+	svc := ioc.InitServer()
+	server := rpc.NewServer(initRegistry(), svc)
+	cr := initCronJob(zap.NewExample(), svc)
+
+	// 启动定时任务
+	cr.Start()
 
 	g := &run.Group{}
 
@@ -51,6 +61,11 @@ func main() {
 		log.Printf("program interrupted, err:%s", err)
 		return
 	}
+
+	// 等待运行完毕
+	// 可以考虑超时强制退出,加一个 Timer
+	ctx := cr.Stop()
+	<-ctx.Done()
 }
 
 func initRegistry() *clientv3.Client {
@@ -63,4 +78,16 @@ func initRegistry() *clientv3.Client {
 	}
 
 	return cli
+}
+
+func initCronJob(l *zap.Logger, svc *service.FavoriteServer) *cron.Cron {
+	cr := cron.New(cron.WithSeconds())
+
+	job := scheduler.NewScheduler(svc)
+	_, err := cr.AddJob("0 0 */2 * * ?", scheduler.NewCronJobBuilder(l).Builder(job))
+	if err != nil {
+		panic(err)
+	}
+
+	return cr
 }
