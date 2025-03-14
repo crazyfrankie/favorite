@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+
+	"github.com/crazyfrankie/favorite/internal/biz/domain"
 )
 
 var (
@@ -285,4 +287,53 @@ func (c *FavoriteCache) CleanupUserHistory(ctx context.Context, uid int64, days 
 
 	_, err := pipe.Exec(ctx)
 	return err
+}
+
+// GetAllCount 获取全局点赞数
+func (c *FavoriteCache) GetAllCount(ctx context.Context) (<-chan domain.FavoriteCount, error) {
+	keys := c.keys()
+	countKey := keys.countKey
+
+	// 使用 channel 实现数据流式返回
+	out := make(chan domain.FavoriteCount, 100)
+	go func() {
+		defer close(out)
+
+		var cursor uint64
+		for {
+			// HSCAN 分批获取数据
+			res, newCursor, err := c.cmd.HScan(ctx, countKey, cursor, "", 100).Result()
+			if err != nil {
+				// 不返回错误，避免 goroutine 可能因为错误导致 panic
+				return
+			}
+			cursor = newCursor
+
+			for i := 0; i < len(res); i += 2 {
+				k := res[i]
+				v := res[i+1]
+
+				strs := strings.Split(k, ":")
+				if len(strs) < 2 {
+					continue
+				}
+				biz := strs[0]
+				bizId, _ := strconv.ParseInt(strs[1], 10, 64)
+				cnt, _ := strconv.ParseInt(v, 10, 64)
+
+				out <- domain.FavoriteCount{
+					Count: cnt,
+					Biz:   biz,
+					BizId: bizId,
+				}
+			}
+
+			// 已经扫描完毕
+			if cursor == 0 {
+				break
+			}
+		}
+	}()
+
+	return out, nil
 }

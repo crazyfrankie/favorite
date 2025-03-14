@@ -4,7 +4,7 @@ type FavoriteCount struct {
 	Id    int64  `gorm:"primaryKey,autoIncrement"`
 	Biz   string `gorm:"uniqueIndex:biz_id_type;type:varchar(128)"`
 	BizId int64  `gorm:"uniqueIndex:biz_id_type"`
-	Count uint64 `gorm:"not null;default:0"`
+	Count int64  `gorm:"not null;default:0"`
 	Ctime int64  `gorm:"autoCreateTime"` // 时间戳
 	Utime int64  `gorm:"autoUpdateTime"`
 }

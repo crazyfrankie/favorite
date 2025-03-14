@@ -8,8 +8,7 @@ type UserFavorite struct {
 }
 
 type FavoriteCount struct {
-	UserId int64
-	Count  int64
-	Biz    string
-	BizId  int64
+	Count int64
+	Biz   string
+	BizId int64
 }
